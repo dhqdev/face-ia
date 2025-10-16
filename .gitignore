@@ -1,0 +1,38 @@
+# --- Ambiente Virtual ---
+# Nunca envie seu ambiente virtual. Ele contém bibliotecas
+# específicas da sua máquina e pode ser muito grande.
+# Outra pessoa deve recriá-lo usando o requirements.txt.
+venv/
+/venv/
+
+# --- Dados Coletados ---
+# A pasta com os dados que você coletou é específica para o seu rosto
+# e pode ficar grande. O importante é ter o script que coleta os dados.
+data/
+/data/
+
+# --- Modelo de Machine Learning Treinado ---
+# Modelos treinados (.pkl) são "artefatos de compilação". Eles são gerados
+# pelo seu código de treinamento e podem ser muito grandes.
+# O correto é enviar o código que GERA o modelo, não o modelo em si.
+*.pkl
+
+# --- Arquivos de Cache e Compilados do Python ---
+# O Python cria essas pastas e arquivos para otimizar a execução.
+# Eles são desnecessários no repositório.
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# --- Arquivos de IDEs e Editores de Código Comuns ---
+# Pastas de configuração de editores como VS Code, PyCharm, etc.
+.vscode/
+.idea/
+.project
+.settings
+
+# --- Arquivos de Sistema Operacional ---
+# Arquivos de metadados do macOS e Windows.
+.DS_Store
+Thumbs.db
