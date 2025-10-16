@@ -36,3 +36,36 @@ __pycache__/
 # Arquivos de metadados do macOS e Windows.
 .DS_Store
 Thumbs.db
+
+# --- React Native / Expo ---
+# Dependencies
+node_modules/
+
+# Expo
+.expo/
+.expo-shared/
+
+# Android
+android/app/build/
+android/app/debug/
+android/app/release/
+*.keystore
+*.jks
+
+# iOS
+ios/build/
+ios/Pods/
+
+# Metro
+.metro/
+
+# Temporary files
+*.tmp
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
