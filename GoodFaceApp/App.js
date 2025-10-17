@@ -1,33 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   StatusBar,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Button,
+  Image,
+  Button
 } from 'react-native';
-// 1. IMPORT CORRETO for SafeAreaView
 import { SafeAreaView } from 'react-native-safe-area-context'; 
-import { CameraView, useCameraPermissions } from 'expo-camera'; // 2. IMPORT CORRETO for CameraView
+import { CameraView, useCameraPermissions } from 'expo-camera';
 
 export default function App() {
-  const [isFilterActive, setIsFilterActive] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
+  const [photo, setPhoto] = useState(null); // Estado para guardar a foto tirada
+  const cameraRef = useRef(null); // Referência para acessar a câmera
 
+  // Pede permissão ao iniciar
   useEffect(() => {
-    requestPermission();
-  }, []);
+    if (!permission) {
+      requestPermission();
+    }
+  }, [permission, requestPermission]);
 
-  const handleFilterToggle = () => {
-    setIsFilterActive(previousState => !previousState);
+  // Função para tirar a foto
+  const takePicture = async () => {
+    if (cameraRef.current) {
+      const options = { quality: 0.5, base64: true };
+      const data = await cameraRef.current.takePictureAsync(options);
+      setPhoto(data); // Salva a foto no nosso estado
+    }
   };
 
-  if (!permission) {
-    return <View />;
-  }
-
-  if (!permission.granted) {
+  // Se ainda não temos permissão
+  if (!permission || !permission.granted) {
     return (
       <View style={styles.permissionContainer}>
         <Text style={styles.permissionText}>Precisamos da sua permissão para usar a câmera</Text>
@@ -36,30 +42,33 @@ export default function App() {
     );
   }
 
+  // Se uma foto foi tirada, mostra a foto. Senão, mostra a câmera.
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={'light-content'} />
       <View style={styles.header}>
         <Text style={styles.title}>Good-Face</Text>
-        <Text style={styles.subtitle}>Seu estúdio de AR pessoal</Text>
+        <Text style={styles.subtitle}>Gerador de Filtros</Text>
       </View>
 
-      <View style={styles.cameraContainer}>
-        {/* 3. USO CORRETO do componente CameraView e da prop 'facing' */}
-        <CameraView style={styles.camera} facing="front">
-          {isFilterActive && (
-            <View style={styles.filterOverlay}>
-              <Text style={styles.filterText}>FILTRO ATIVO</Text>
-            </View>
-          )}
-        </CameraView>
-      </View>
+      {photo ? (
+        // --- Tela de Visualização da Foto ---
+        <View style={styles.cameraContainer}>
+          <Image source={{ uri: photo.uri }} style={styles.camera} />
+          <TouchableOpacity style={styles.closeButton} onPress={() => setPhoto(null)}>
+            <Text style={styles.closeButtonText}>X</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        // --- Tela da Câmera ---
+        <View style={styles.cameraContainer}>
+          <CameraView style={styles.camera} facing="front" ref={cameraRef} />
+        </View>
+      )}
 
       <View style={styles.controls}>
-        <TouchableOpacity style={styles.button} onPress={handleFilterToggle}>
-          <Text style={styles.buttonText}>
-            {isFilterActive ? 'Remover Filtro' : 'Aplicar Filtro'}
-          </Text>
+        <TouchableOpacity style={styles.button} onPress={takePicture}>
+          <Text style={styles.buttonText}>Tirar Foto</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -68,23 +77,10 @@ export default function App() {
 
 // Estilos
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-  },
-  header: {
-    padding: 20,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#AAAAAA',
-  },
+  container: { flex: 1, backgroundColor: '#121212' },
+  header: { padding: 20, alignItems: 'center' },
+  title: { fontSize: 32, fontWeight: 'bold', color: '#FFFFFF' },
+  subtitle: { fontSize: 16, color: '#AAAAAA' },
   cameraContainer: {
     flex: 1,
     marginHorizontal: 20,
@@ -92,23 +88,15 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 10,
   },
-  camera: {
-    flex: 1,
-  },
-  controls: {
-    padding: 20,
-  },
+  camera: { flex: 1 },
+  controls: { padding: 20 },
   button: {
     backgroundColor: '#1E90FF',
     paddingVertical: 15,
     borderRadius: 10,
     alignItems: 'center',
   },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
+  buttonText: { color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' },
   permissionContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -122,16 +110,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  filterOverlay: {
+  closeButton: {
     position: 'absolute',
-    top: 20,
-    left: 20,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    padding: 10,
-    borderRadius: 5,
+    top: 10,
+    right: 10,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    borderRadius: 15,
+    width: 30,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  filterText: {
+  closeButtonText: {
     color: 'white',
+    fontSize: 18,
     fontWeight: 'bold',
   }
 });
